@@ -1,4 +1,4 @@
-# ROS ROBOBO FOR LEARNING MACHINES sd
+# ROS ROBOBO FOR LEARNING MACHINES 
 
 Note, if you feel like not using this path but installing directly on your system, you are free to do it, but you are on your own.
 
