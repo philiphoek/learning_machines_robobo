@@ -26,7 +26,7 @@ def main():
     rob.play_simulation()
 
     n_hidden_neurons = 10
-    number_of_sensors = 6
+    number_of_sensors = 8
     # left wheel and right wheel
     number_of_actions = 2
 
@@ -34,8 +34,6 @@ def main():
     n_vars = (number_of_sensors + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * 2
 
     controller = robotController(n_hidden_neurons)
-
-    print('hallo')
 
     dom_u = 1
     dom_l = -1
@@ -47,11 +45,11 @@ def main():
     # Following code moves the robot
     for i in range(10):
         print("robobo is at {}".format(rob.position()))
-        values = np.array(rob.read_irs())
-        values[np.isnan(values)] = 0
+        values = np.array(rob.read_irs(), np.float)
+        # values[np.isnan(values)] = 0
         print(values)
-        left, right = controller.control(np.array([1,1,1,1,1,1]), robot)
-        rob.move(left, right, 2000)
+        left, right = controller.control(values, robot)
+        rob.move(left, right, 1000)
         print("ROB Irs: {}".format(np.log(np.array(rob.read_irs())) / 10))
         # print("Base sensor detection: ", rob.base_detects_food())
 

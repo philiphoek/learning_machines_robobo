@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function
 from .simulation import SimulationRobobo
 from .simulation_prey import SimulationRoboboPrey
+# from .hardware import HardwareRobobo
 
 try:
     # Tries to import Hardware, but if rospy is not installed, 

@@ -1,11 +1,10 @@
-import numpy
+import numpy as np
+
 
 class Controller(object):
 
-
-    def control(self, inputs, controller = None):
-
-        action1 = numpy.random.choice([1,0])
-        action2 = numpy.random.choice([1,0])
+    def control(self, inputs: np.array, controller: np.array):
+        action1 = np.random.choice([1, 0])
+        action2 = np.random.choice([1, 0])
 
         return [action1, action2]

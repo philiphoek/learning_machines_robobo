@@ -18,7 +18,8 @@ def terminate_program(signal_number, frame):
 def main():
     signal.signal(signal.SIGINT, terminate_program)
 
-    # rob = robobo.HardwareRobobo(camera=True).connect(address="192.168.178.66")
+    # rob = robobo.HardwareRobobo(camera=True).connect(address="10.15.3.208")
+    # philip home: 192.168.178.66
     rob = robobo.SimulationRobobo().connect(address='192.168.178.66', port=19997)
 
     rob.play_simulation()
@@ -28,7 +29,7 @@ def main():
             print("robobo is at {}".format(rob.position()))
             rob.move(15, 15, 2000)
             print("ROB Irs: {}".format(np.log(np.array(rob.read_irs()))/10))
-            #print("Base sensor detection: ", rob.base_detects_food())
+            print("Base sensor detection: ", rob.base_detects_food())
    
     print("robobo is at {}".format(rob.position()))
     rob.sleep(1)
