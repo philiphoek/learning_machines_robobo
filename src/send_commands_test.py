@@ -43,17 +43,19 @@ def main():
     robot = pop[0]
 
     # Following code moves the robot
-    for i in range(10):
-        print("robobo is at {}".format(rob.position()))
-        values = np.array(rob.read_irs(), np.float)
-        # values[np.isnan(values)] = 0
-        print(values)
-        left, right = controller.control(values, robot)
+    for i in range(100):
+        # print("robobo is at {}".format(rob.position()))
+        values = np.array(rob.read_irs(), float)
+        # print(np.nan_to_num(values))
+        # values = np.nan_to_num(values)
+        # print(values)
+        left, right = controller.control(np.nan_to_num(values), robot)
+        print([left, right])
         rob.move(left, right, 1000)
-        print("ROB Irs: {}".format(np.log(np.array(rob.read_irs())) / 10))
+        # print("ROB Irs: {}".format(np.log(np.array(rob.read_irs())) / 10))
         # print("Base sensor detection: ", rob.base_detects_food())
 
-    print("robobo is at {}".format(rob.position()))
+    # print("robobo is at {}".format(rob.position()))
     rob.sleep(1)
 
     # pause the simulation and read the collected food
