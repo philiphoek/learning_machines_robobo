@@ -15,6 +15,17 @@ from robot_controller import robotController
 def terminate_program(signal_number, frame):
     print("Ctrl-C received, terminating program")
     sys.exit(1)
+    
+def detect_object(robobot):
+    for i in range(8):
+        if ((np.log(np.array(robobot.read_irs()[i]))/10 > -1) and (np.log(np.array(robobot.read_irs()[i]))/10 < -0.20)):
+            i = 8
+            print("OBJECT DETECTED SOMEWHERE")
+            return True
+        elif (np.log(np.array(robobot.read_irs()[i]))/10 > -1):
+            print("OBJECT MUST BE CLOSEBY")
+    
+    return False
 
 
 def main():
