@@ -23,7 +23,6 @@ def main():
     # rob = robobo.HardwareRobobo(camera=True).connect(address="192.168.178.66")
     rob = robobo.SimulationRobobo().connect(address='192.168.178.66', port=19997)
 
-    rob.play_simulation()
 
     n_hidden_neurons = 10
     number_of_sensors = 8
@@ -37,33 +36,40 @@ def main():
 
     dom_u = 1
     dom_l = -1
-    npop = 1
+    npop = 2
 
     pop = np.random.uniform(dom_l, dom_u, (npop, n_vars))
-    robot = pop[0]
 
-    # Following code moves the robot
-    for i in range(20):
+    for robot in pop:
+
+        rob.play_simulation()
+
+        # Following code moves the robot
+        for i in range(100):
+            # print("robobo is at {}".format(rob.position()))
+            values = np.array(rob.read_irs(), float)
+            # print(np.nan_to_num(values))
+            # values = np.nan_to_num(values)
+            # print(values)
+            left, right = controller.control(np.nan_to_num(values), robot)
+            print([left, right])
+            rob.move(left, right, 1000)
+            if (rob.check_for_collision()):
+                # stop the simulation ones an object is hit
+                print('Object is hit')
+                break
+            # print("ROB Irs: {}".format(np.log(np.array(rob.read_irs())) / 10))
+            # print("Base sensor detection: ", rob.base_detects_food())
+
         # print("robobo is at {}".format(rob.position()))
-        values = np.array(rob.read_irs(), float)
-        # print(np.nan_to_num(values))
-        # values = np.nan_to_num(values)
-        # print(values)
-        left, right = controller.control(np.nan_to_num(values), robot)
-        print([left, right])
-        rob.move(left, right, 1000)
-        print(rob.check_for_collision())
-        # print("ROB Irs: {}".format(np.log(np.array(rob.read_irs())) / 10))
-        # print("Base sensor detection: ", rob.base_detects_food())
+        rob.sleep(1)
 
-    # print("robobo is at {}".format(rob.position()))
-    rob.sleep(1)
+        # pause the simulation and read the collected food
+        rob.pause_simulation()
 
-    # pause the simulation and read the collected food
-    rob.pause_simulation()
-
-    # Stopping the simualtion resets the environment
-    rob.stop_world()
+        # Stopping the simualtion resets the environment
+        rob.stop_world()
+        rob.wait_for_stop()
 
 
 if __name__ == "__main__":
