@@ -28,9 +28,9 @@ class SimulationRobobo(Robobo):
         while time.time() - startTime < get_handles_timeout:
             try:
                 self.initialize_handles()
-                self.initialize_outer_wall()
                 return self
             except vrep.VrepApiError as _e:
+                print(_e)
                 print("Handle initialization failed, retrying.")
                 time.sleep(0.05)
 
@@ -66,6 +66,8 @@ class SimulationRobobo(Robobo):
         self._PanMotor = self._vrep_get_object_handle('Pan_Motor{}'.format(self._value_number), vrep.simx_opmode_blocking)
         self._FrontalCamera = self._vrep_get_object_handle('Frontal_Camera{}'.format(self._value_number), vrep.simx_opmode_blocking)
 
+        self._Coll = self._vrep_get_collision_handle('Collision', vrep.simx_opmode_blocking)
+
         try:
             # print("Base_Proximity_sensor")
             self._base = self._vrep_get_object_handle("Base_Proximity_sensor", vrep.simx_opmode_blocking)
@@ -89,6 +91,8 @@ class SimulationRobobo(Robobo):
         if self._base is not None:
             self._vrep_read_proximity_sensor_ignore_error(self._base)
 
+        self._vrep_read_collision_ignore_error(self._Coll)
+
         # setup join positions
         vrep.simxGetJointPosition(self._clientID, self._RightMotor, vrep.simx_opmode_buffer)
         vrep.simxGetJointPosition(self._clientID, self._LeftMotor, vrep.simx_opmode_buffer)
@@ -100,10 +104,6 @@ class SimulationRobobo(Robobo):
         self._vrep_get_vision_sensor_image_ignore_error(self._FrontalCamera, vrep.simx_opmode_streaming)
 
         self.wait_for_ping()
-
-    def initialize_outer_wall(self):
-        self._OuterWall = self._vrep_get_object_handle('20cmHighWall50cm_visible{}'.format(self._value_number),
-                                                        vrep.simx_opmode_blocking)
 
     def sleep(self, seconds):
         duration = seconds * 1000
@@ -131,12 +131,25 @@ class SimulationRobobo(Robobo):
     def _vrep_get_object_handle(self, name, opmode):
         return vrep.unwrap_vrep(vrep.simxGetObjectHandle(self._clientID, name, opmode))
 
+    def _vrep_get_collision_handle(self, name, opmode):
+        return vrep.unwrap_vrep(vrep.simxGetCollisionHandle(self._clientID, name, opmode))
+
     def _vrep_read_proximity_sensor(self, handle, opmode=vrep.simx_opmode_streaming):
         return vrep.unwrap_vrep(vrep.simxReadProximitySensor(self._clientID, handle, opmode))
 
     def _vrep_read_proximity_sensor_ignore_error(self, handle, opmode=vrep.simx_opmode_streaming):
         try:
             self._vrep_read_proximity_sensor(handle, opmode)
+        except vrep.error.VrepApiError as error:
+            if error.ret_code is not vrep.simx_return_novalue_flag:
+                raise
+
+    def _vrep_read_collision(self, handle, opmode=vrep.simx_opmode_streaming):
+        return vrep.unwrap_vrep(vrep.simxReadCollision(self._clientID, handle, opmode))
+
+    def _vrep_read_collision_ignore_error(self, handle, opmode=vrep.simx_opmode_streaming):
+        try:
+            self._vrep_read_collision(handle, opmode)
         except vrep.error.VrepApiError as error:
             if error.ret_code is not vrep.simx_return_novalue_flag:
                 raise
@@ -368,4 +381,8 @@ class SimulationRobobo(Robobo):
         return bool(detection)
 
     def check_for_collision(self):
-        return vrep.unwrap_vrep(vrep.simxCheckCollision(self._clientID, vrep.sim_appobj_distance_type, vrep.simx_opmode_streaming))
+        boolean = self._vrep_read_collision(self._Coll, vrep.simx_opmode_buffer)
+        return bool(boolean)
+    #
+    # def check_distance(self):
+    #     return vrep.simxReadDistance(self._clientID, self._Distance, vrep.simx_opmode_buffer)

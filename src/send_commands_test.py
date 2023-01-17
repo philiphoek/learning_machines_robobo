@@ -43,7 +43,7 @@ def main():
     robot = pop[0]
 
     # Following code moves the robot
-    for i in range(100):
+    for i in range(20):
         # print("robobo is at {}".format(rob.position()))
         values = np.array(rob.read_irs(), float)
         # print(np.nan_to_num(values))
@@ -52,6 +52,7 @@ def main():
         left, right = controller.control(np.nan_to_num(values), robot)
         print([left, right])
         rob.move(left, right, 1000)
+        print(rob.check_for_collision())
         # print("ROB Irs: {}".format(np.log(np.array(rob.read_irs())) / 10))
         # print("Base sensor detection: ", rob.base_detects_food())
 
