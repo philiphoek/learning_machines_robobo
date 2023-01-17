@@ -59,10 +59,10 @@ class robotController(Controller):
 			output = sigmoid_activation(inputs.dot(weights) + bias)[0]
 
 
-		left_wheel = round(10 * output[0], 2)
+		left_wheel = round(40 * output[0], 2)
 		# print('left_wheel')
 		# print(left_wheel)
-		right_wheel = round(10 * output[1], 2)
+		right_wheel = round(40 * output[1], 2)
 		# print('right_wheel')
 		# print(right_wheel)
 		# if output[0] > 0.5:
