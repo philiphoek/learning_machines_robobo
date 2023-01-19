@@ -23,8 +23,9 @@ def terminate_program(signal_number, frame):
     print("Ctrl-C received, terminating program")
     sys.exit(1)
 
-best_text_file = input("Enter name of experiment: ")
-experiment_name = f'first_try'
+experiment_name = input("Enter name of experiment: ")
+while (os.path.exists(experiment_name)):
+    experiment_name = input("That name was already chosen, pick another: ")
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -32,14 +33,6 @@ signal.signal(signal.SIGINT, terminate_program)
 
 # rob = robobo.HardwareRobobo(camera=True).connect(address="192.168.178.66")
 rob = robobo.SimulationRobobo().connect(address='192.168.178.66', port=19997)
-
-# dom_u = 1
-# dom_l = -1
-# npop = 5
-#
-# pop = np.random.uniform(dom_l, dom_u, (npop, n_vars))
-
-# create instance of controller class
 
 
 ########
@@ -66,8 +59,8 @@ TOURNSIZE = 8
 ###########
 # DO NOT CHANGE
 ###########
-NGEN = 10
-npop = 30
+NGEN = 3
+npop = 2
 RUNS = 1
 
 n_hidden_neurons = 10
@@ -160,6 +153,28 @@ def simulation(rob, robot):
 def evaluate(robot):
     return (simulation(rob, robot),)
 
+def getStatistics(run, generation, pop, fits):
+    length = len(pop)
+    mean = sum(fits) / length
+    sum2 = sum(x * x for x in fits)
+    std = abs(sum2 / length - mean ** 2) ** 0.5
+
+    print("  Min %s" % min(fits))
+    print("  Max %s" % max(fits))
+    print("  Avg %s" % mean)
+
+    # saves results
+    # get best invididual fitness
+    best_ind = tools.selBest(pop, 1)[0]
+    best_fitness = best_ind.fitness.values[0]
+    # get best individual values
+
+    # saves results for first pop
+    file_aux = open(experiment_name + '/results.txt', 'a')
+    file_aux.write(
+        '\n' + str(run) + ' ' + str(generation) + ' ' + str(round(best_fitness, 6)) + ' ' + str(round(mean, 6)) + ' ' + str(round(std, 6)))
+    file_aux.close()
+
 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -174,8 +189,7 @@ toolbox.register("mate", tools.cxTwoPoint)
 toolbox.register("mutate", tools.mutGaussian, mu=MU, sigma=SIGMA, indpb=INDPB)
 toolbox.register("select", tools.selTournament, tournsize=TOURNSIZE)
 
-
-def main():
+def evolution(run):
     pop = toolbox.population(n=npop)
 
     print("Start of evolution")
@@ -186,7 +200,7 @@ def main():
         ind.fitness.values = fit
 
     fits = [ind.fitness.values[0] for ind in pop]
-    # getStatistics(run, 0, pop, fits)
+    getStatistics(run, 0, pop, fits)
 
     print("  Evaluated %i individuals" % len(pop))
 
@@ -231,7 +245,7 @@ def main():
         # Gather all the fitnesses in one list and print the stats
         fits = [ind.fitness.values[0] for ind in pop]
 
-        # getStatistics(run, g, pop, fits)
+        getStatistics(run, g, pop, fits)
 
         # saves file with the best solution
         best_ind = tools.selBest(pop, 1)[0]
@@ -247,6 +261,12 @@ def main():
     # for robot in pop:
     #     simulation(rob, robot)
 
+def main():
+    file_aux = open(experiment_name + '/results.txt', 'a')
+    file_aux.write('run gen best mean std')
+    file_aux.close()
+    for run in range(1, RUNS + 1):
+        evolution(run)
 
 if __name__ == "__main__":
     main()
