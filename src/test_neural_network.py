@@ -59,9 +59,9 @@ TOURNSIZE = 8
 ###########
 # DO NOT CHANGE
 ###########
-NGEN = 3
+NGEN = 10
 npop = 2
-RUNS = 1
+RUNS = 3
 
 n_hidden_neurons = 10
 controller = robotController(n_hidden_neurons)
