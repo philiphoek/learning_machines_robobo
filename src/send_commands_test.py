@@ -54,9 +54,10 @@ def main():
     for robot in pop:
 
         rob.play_simulation()
+        rob.vrep_simx_set_boolean_parameters(True)
 
         # Following code moves the robot
-        for i in range(100):
+        for i in range(50):
             # print("robobo is at {}".format(rob.position()))
             values = np.array(rob.read_irs(), float)
             # print(np.nan_to_num(values))

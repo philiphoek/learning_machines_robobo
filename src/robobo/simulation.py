@@ -383,6 +383,9 @@ class SimulationRobobo(Robobo):
     def check_for_collision(self):
         boolean = self._vrep_read_collision(self._Coll, vrep.simx_opmode_buffer)
         return bool(boolean)
+
+    def vrep_simx_set_boolean_parameters(self, paramValue):
+        vrep.simxSetBooleanParameter(self._clientID, 25, paramValue, vrep.simx_opmode_oneshot)
     #
     # def check_distance(self):
     #     return vrep.simxReadDistance(self._clientID, self._Distance, vrep.simx_opmode_buffer)

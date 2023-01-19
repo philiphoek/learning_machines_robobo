@@ -55,12 +55,12 @@ SIGMA = 0.1
 # indpb: Independent probability for each attribute to be mutated.
 INDPB = 0.1
 # tournsize: The number of individuals participating in each tournament.
-TOURNSIZE = 8
+TOURNSIZE = 4
 ###########
 # DO NOT CHANGE
 ###########
 NGEN = 10
-npop = 2
+npop = 20
 RUNS = 3
 
 n_hidden_neurons = 10
@@ -111,14 +111,14 @@ def simulation(rob, robot):
         intermediate_position[i] = position_after_step
 
         # Stop if the robot has travelled less than 0.2 meters in the last 5 time steps
-        if (i > 5):
-            distance_travelled_in_last_ten_steps = getDistance(intermediate_position[i - 5], intermediate_position[i])
+        if (i > 10):
+            distance_travelled_in_last_ten_steps = getDistance(intermediate_position[i - 10], intermediate_position[i])
             # print()
             # print('distance travelled:')
             # print(distance_travelled_in_last_ten_steps)
             if (distance_travelled_in_last_ten_steps < 0.20):
                 # stop the simulation ones the robot is not moving enough
-                print('Robot is not moving enough')
+                print(f"Robot is not moving enough (travelled only {distance_travelled_in_last_ten_steps} meters)")
                 break
 
         if (i > 1):
@@ -253,7 +253,7 @@ def evolution(run):
         # saves file with the best solution
         best_ind = tools.selBest(pop, 1)[0]
         print(best_ind)
-        np.savetxt(experiment_name + '/best.txt', best_ind)
+        np.savetxt(experiment_name + f"/best-{run}.txt", best_ind)
 
         # saves simulation state
         solutions = [pop, fits]
