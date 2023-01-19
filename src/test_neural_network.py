@@ -23,6 +23,9 @@ def terminate_program(signal_number, frame):
     print("Ctrl-C received, terminating program")
     sys.exit(1)
 
+experiment_name = f'first_try'
+if not os.path.exists(experiment_name):
+    os.makedirs(experiment_name)
 
 signal.signal(signal.SIGINT, terminate_program)
 
@@ -62,8 +65,8 @@ TOURNSIZE = 8
 ###########
 # DO NOT CHANGE
 ###########
-NGEN = 1
-npop = 5
+NGEN = 10
+npop = 30
 RUNS = 1
 
 n_hidden_neurons = 10
@@ -77,26 +80,79 @@ n_vars = (number_of_sensors + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * 2
 
 pop = np.random.uniform(weight_lower, weight_upper, (npop, n_vars))
 
+def getDistance(point_one, point_two):
+    p1 = np.array(point_one)
+    p2 = np.array(point_two)
+
+    squared_dist = np.sum((p1 - p2) ** 2, axis=0)
+    return np.sqrt(squared_dist)
 
 def simulation(rob, robot):
     rob.play_simulation()
 
+    allowed_steps = 50
+    steps_taken = 0
+    position_start = rob.position()
+    position_after = rob.position()
+    times_moved_back = 0
+    intermediate_distance = np.zeros(shape=(allowed_steps))
+    intermediate_position = np.zeros(shape=(allowed_steps, 3))
     # Following code moves the robot
-    for i in range(10):
+    for i in range(allowed_steps):
+        position_before_step = rob.position()
         values = np.array(rob.read_irs(), float)
 
         left, right = controller.control(np.nan_to_num(values), robot)
-        print([left, right])
         rob.move(left, right, 1000)
+
         if (rob.check_for_collision()):
             # stop the simulation ones an object is hit
             print('Object is hit')
             break
 
+        position_after_step = rob.position()
+        intermediate_distance[i] = getDistance(position_before_step, position_after_step)
+        intermediate_position[i] = position_after_step
+
+
+
+        if (i > 10):
+            distance_travelled_in_last_ten_steps = getDistance(intermediate_position[i - 5], intermediate_position[i])
+            print()
+            print('distance travelled:')
+            print(distance_travelled_in_last_ten_steps)
+            if (distance_travelled_in_last_ten_steps < 0.20):
+                # stop the simulation ones the robot is not moving enough
+                print('Robot is not moving enough')
+                break
+
+        if (i > 1):
+            distance_improvement = getDistance(intermediate_position[i], position_start) - getDistance(intermediate_position[i - 1], position_start)
+            if (distance_improvement < 0):
+                times_moved_back += 1
+            else:
+                times_moved_back = 0
+
+        print()
+        print('times moved back:')
+        print(times_moved_back)
+
+
+        if (times_moved_back > 5):
+            print('Robot is going back again')
+            break
+
+        steps_taken += 1
+
     # Stopping the simualtion resets the environment
+    position_after = rob.position()
     rob.stop_world()
     rob.wait_for_stop()
-    return 100
+
+    fitness = (steps_taken / allowed_steps) * getDistance(position_start, position_after)
+    print('fitness: ')
+    print(fitness)
+    return fitness
 
 
 # evaluate the fitness of an individual
@@ -178,6 +234,8 @@ def main():
 
         # saves file with the best solution
         best_ind = tools.selBest(pop, 1)[0]
+        print(best_ind)
+        np.savetxt(experiment_name + '/best.txt', best_ind)
 
         # saves simulation state
         solutions = [pop, fits]
