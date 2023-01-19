@@ -23,6 +23,7 @@ def terminate_program(signal_number, frame):
     print("Ctrl-C received, terminating program")
     sys.exit(1)
 
+best_text_file = input("Enter name of experiment: ")
 experiment_name = f'first_try'
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
