@@ -29,9 +29,7 @@ def main():
     # load the best individual from folder DEAP_ES_against_enemies_7_8_for_1_runs.txt
     best_text_file = input("Enter path the best text file: ")
     with open(best_text_file, 'rb') as f:
-
         best = np.loadtxt(f)
-        print(type(best))
 
     rob.play_simulation()
     for i in range(allowed_steps):
