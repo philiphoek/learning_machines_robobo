@@ -82,6 +82,8 @@ def getDistance(point_one, point_two):
     return np.sqrt(squared_dist)
 
 def simulation(rob, robot):
+    print()
+    print('Simulation started')
     rob.play_simulation()
 
     allowed_steps = 50
@@ -108,13 +110,12 @@ def simulation(rob, robot):
         intermediate_distance[i] = getDistance(position_before_step, position_after_step)
         intermediate_position[i] = position_after_step
 
-
-
-        if (i > 10):
+        # Stop if the robot has travelled less than 0.2 meters in the last 5 time steps
+        if (i > 5):
             distance_travelled_in_last_ten_steps = getDistance(intermediate_position[i - 5], intermediate_position[i])
-            print()
-            print('distance travelled:')
-            print(distance_travelled_in_last_ten_steps)
+            # print()
+            # print('distance travelled:')
+            # print(distance_travelled_in_last_ten_steps)
             if (distance_travelled_in_last_ten_steps < 0.20):
                 # stop the simulation ones the robot is not moving enough
                 print('Robot is not moving enough')
@@ -127,11 +128,11 @@ def simulation(rob, robot):
             else:
                 times_moved_back = 0
 
-        print()
-        print('times moved back:')
-        print(times_moved_back)
+        # print()
+        # print('times moved back:')
+        # print(times_moved_back)
 
-
+        # Stop if the robot has gone backwards for 5 time steps
         if (times_moved_back > 5):
             print('Robot is going back again')
             break
@@ -144,8 +145,7 @@ def simulation(rob, robot):
     rob.wait_for_stop()
 
     fitness = (steps_taken / allowed_steps) * getDistance(position_start, position_after)
-    print('fitness: ')
-    print(fitness)
+    print(f"fitness: {fitness}")
     return fitness
 
 
@@ -159,6 +159,8 @@ def getStatistics(run, generation, pop, fits):
     sum2 = sum(x * x for x in fits)
     std = abs(sum2 / length - mean ** 2) ** 0.5
 
+    print()
+    print(f"Statistics of run {run} and generation {generation}")
     print("  Min %s" % min(fits))
     print("  Max %s" % max(fits))
     print("  Avg %s" % mean)
@@ -192,7 +194,7 @@ toolbox.register("select", tools.selTournament, tournsize=TOURNSIZE)
 def evolution(run):
     pop = toolbox.population(n=npop)
 
-    print("Start of evolution")
+    print(f"Start of evolution {run}")
 
     # Evaluate the entire population
     fitnesses = list(map(toolbox.evaluate, np.array(pop)))
@@ -206,6 +208,7 @@ def evolution(run):
 
     # Begin the evolution
     for g in range(1, NGEN):
+        print()
         print("-- Generation %i --" % g)
 
         # Select the next generation individuals
