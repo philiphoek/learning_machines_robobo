@@ -32,7 +32,7 @@ if not os.path.exists(experiment_name):
 signal.signal(signal.SIGINT, terminate_program)
 
 # rob = robobo.HardwareRobobo(camera=True).connect(address="192.168.178.66")
-rob = robobo.SimulationRobobo().connect(address='192.168.178.66', port=19997)
+rob = robobo.SimulationRobobo().connect(address='127.0.0.1', port=19997)
 
 
 ########
@@ -55,13 +55,13 @@ SIGMA = 0.1
 # indpb: Independent probability for each attribute to be mutated.
 INDPB = 0.1
 # tournsize: The number of individuals participating in each tournament.
-TOURNSIZE = 4
+TOURNSIZE = 8
 ###########
 # DO NOT CHANGE
 ###########
 NGEN = 10
-npop = 20
-RUNS = 1
+npop = 30
+RUNS = 5
 
 n_hidden_neurons = 10
 controller = robotController(n_hidden_neurons)
