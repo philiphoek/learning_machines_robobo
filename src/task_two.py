@@ -46,15 +46,25 @@ def detect_green(image):
                                            cv2.RETR_TREE,
                                            cv2.CHAIN_APPROX_SIMPLE)
 
-    print(image.shape)
+    best_area = 0
+    best_x = 0
+    best_y = 0
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if area > best_area and area > 200:
+            best_area = area
+
             x, y, w, h = cv2.boundingRect(contour)
-            print(x, y, w, h)
+            best_x = int(x + (w / 2))
+            best_y = int(y + h)
+
             image = cv2.rectangle(image, (x, y),
                                   (x + w, y + h),
                                   (0, 255, 0), 2)
+
+            image = cv2.rectangle(image, (best_x, best_y),
+                                  (best_x + 2, best_y + 2),
+                                  (0, 0, 255), 2)
 
             # cv2.putText(image, "Green Colour", (x, y),
             #             cv2.FONT_HERSHEY_SIMPLEX,
@@ -63,6 +73,33 @@ def detect_green(image):
     # cv2.imshow('Blue Detector', blue)  # to display the blue object output
     # image_rgb = image[...,::-1].copy()
     cv2.imwrite("test_pictures.png", image)
+
+    top_left = 0
+    top_center = 0
+    top_right = 0
+    bottom_left = 0
+    bottom_center = 0
+    bottom_right = 0
+    if best_x < 42 and best_y <= 64:
+        print('object is in top left')
+        top_left = 1
+    if 42 < best_x < 84 and best_y <= 64:
+        print('object is in top center')
+        top_center = 1
+    if best_x > 84 and best_y <= 64:
+        print('object is in top right')
+        top_right = 1
+    if best_x < 42 and best_y > 64:
+        print('object is in bottom left')
+        bottom_left = 1
+    if 42 < best_x < 84 and best_y > 64:
+        print('object is in bottom center')
+        bottom_center = 1
+    if best_x > 84 and best_y > 64:
+        print('object is in bottom right')
+        bottom_right = 1
+
+    return top_left, top_center, top_right, bottom_left, bottom_center, bottom_right
 
 def main():
     signal.signal(signal.SIGINT, terminate_program)
@@ -73,22 +110,23 @@ def main():
 
     rob.play_simulation()
 
-    # Following code moves the robot
-    for i in range(1):
-            print("robobo is at {}".format(rob.position()))
-            rob.move(5, 5, 1000)
-            print("ROB Irs: {}".format(np.log(np.array(rob.read_irs()))/10))
-            print("collected food: ", rob.collected_food())
-   
-    print("robobo is at {}".format(rob.position()))
-    rob.sleep(1)
-
     # Following code moves the phone stand
     # rob.set_phone_pan(0, 100)
     rob.set_phone_tilt(19.6, 1)
-    time.sleep(1)
 
-    detect_green(rob.get_image_front())
+    # Following code moves the robot
+    for i in range(1):
+        top_left, top_center, top_right, bottom_left, bottom_center, bottom_right = detect_green(rob.get_image_front())
+        print()
+        print('Object Detected')
+        print(top_left, top_center, top_right)
+        print(bottom_left, bottom_center, bottom_right)
+        print()
+        print("robobo is at {}".format(rob.position()))
+        rob.move(5, 5, 1000)
+        print("ROB Irs: {}".format(np.log(np.array(rob.read_irs()))/10))
+        print("collected food: ", rob.collected_food())
+
 
     # pause the simulation and read the collected food
     rob.pause_simulation()
