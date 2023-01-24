@@ -73,6 +73,7 @@ class SimulationRobobo(Robobo):
             self._base = self._vrep_get_object_handle("Base_Proximity_sensor", vrep.simx_opmode_blocking)
             # print(self._base)
         except vrep.VrepApiError as _e:
+            print('no')
             self._base = None
 
         # read a first value in streaming mode
