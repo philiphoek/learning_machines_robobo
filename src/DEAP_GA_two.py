@@ -59,8 +59,8 @@ TOURNSIZE = 8
 ###########
 # DO NOT CHANGE
 ###########
-NGEN = 1
-npop = 3
+NGEN = 10
+npop = 40
 RUNS = 1
 
 n_hidden_neurons = 10
@@ -185,6 +185,8 @@ def simulation(rob, robot):
     allowed_steps = 50
     steps_taken = 0
     times_near_object = 0
+    object_hit = 0
+    reward_for_seeing_object = 0
     # position_start = rob.position()
     # position_after = rob.position()
     # times_moved_back = 0
@@ -201,9 +203,19 @@ def simulation(rob, robot):
         rob.move(left, right, 1000)
 
         if (rob.check_for_collision()):
+            object_hit = 1
             # stop the simulation ones an object is hit
             print('Object is hit')
             break
+
+        if top_left == 1 or top_right == 1:
+            reward_for_seeing_object += 1
+
+        if bottom_left == 1 or bottom_right == 1 or top_center == 1:
+            reward_for_seeing_object += 2
+
+        if bottom_center == 1:
+            reward_for_seeing_object += 3
 
         if (detect_object(rob)):
             times_near_object += 0.5
@@ -212,8 +224,10 @@ def simulation(rob, robot):
 
 
     print(f"Food collected: {rob.collected_food()}")
+    print(f"Reward for seeing object: {reward_for_seeing_object}")
+    print(f"Object hit: {object_hit}")
     print(f"Near object penalty: {times_near_object}")
-    fitness = 20 * rob.collected_food()
+    fitness = 20 * rob.collected_food() + reward_for_seeing_object - 80 * object_hit - times_near_object
     print(f"fitness: {fitness}")
 
     rob.stop_world()
