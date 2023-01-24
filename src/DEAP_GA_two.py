@@ -182,6 +182,10 @@ def simulation(rob, robot):
     print('Simulation started')
     rob.play_simulation()
 
+    # Following code moves the phone stand
+    # rob.set_phone_pan(0, 100)
+    rob.set_phone_tilt(19.6, 1)
+
     allowed_steps = 50
     steps_taken = 0
     times_near_object = 0
