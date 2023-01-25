@@ -1,0 +1,31 @@
+###########
+# DO NOT CHANGE
+###########
+weight_upper = 1
+weight_lower = -1
+# cross two individuals with probability CXPB
+CXPB = 0.8
+# mutate an individual with probability MUTPB
+MUTPB = 0.2
+# mu: Mean or :term:`python:sequence` of means for the gaussian addition mutation.
+MU = 0
+# sigma: Standard deviation or :term:`python:sequence` of standard deviations for the gaussian addition mutation.
+SIGMA = 0.15
+# indpb: Independent probability for each attribute to be mutated.
+INDPB = 0.1
+# tournsize: The number of individuals participating in each tournament.
+TOURNSIZE = 8
+###########
+# DO NOT CHANGE
+###########
+NGEN = 10
+npop = 50
+RUNS = 3
+
+n_hidden_neurons = 10
+controller = robotController(n_hidden_neurons)
+number_of_sensors = 14
+# left wheel and right wheel
+number_of_actions = 2
+
+max speed robot = 35
