@@ -14,7 +14,7 @@ def tanh_activation(x):
 class robotController(Controller):
 	def __init__(self, rob):
 		# Number of hidden neurons
-		self.n_hidden_neurons = 10
+		self.n_hidden_neurons = 8
 		self.n_hidden = [self.n_hidden_neurons]
 		self.number_of_sensors = 9
 		self.number_of_actions = 2
