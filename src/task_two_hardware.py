@@ -27,7 +27,7 @@ def main():
 
     # load the best individual from folder DEAP_ES_against_enemies_7_8_for_1_runs.txt
     # best_text_file = input("Enter path the best text file: ")
-    with open('task_two_new_nn/best-1.txt', 'rb') as f:
+    with open('task_two_50pop/best-1.txt', 'rb') as f:
         best = np.loadtxt(f)
 
     print('starting')
