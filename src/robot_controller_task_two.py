@@ -1,5 +1,6 @@
 import numpy as np
 from controller_task_two import Controller
+from PIL import Image
 import cv2
 
 def sigmoid_activation(x):
@@ -89,6 +90,12 @@ class robotController(Controller):
 		self.front_R = irs_values[6]
 		self.front_L = irs_values[7]
 
+		# print(max(self.front_RR, self.front_R))
+		# print(max(self.front_LL, self.front_L))
+		# print(self.front_C)
+		# print(self.back_C)
+		# print(self.back_L)
+		# print(self.back_R)
 		return [
 			max(self.front_RR, self.front_R),
 			max(self.front_LL, self.front_L),
@@ -100,6 +107,16 @@ class robotController(Controller):
 
 	# https://www.geeksforgeeks.org/multiple-color-detection-in-real-time-using-python-opencv/?ref=rp
 	def detect_green(self, image):
+
+		cv2.imwrite("test_pictures.png", image)
+		# resize if image is not the correct resolution
+		if image.shape[0] != 128 or image.shape[1] != 128:
+			im = Image.open("test_pictures.png")
+			size = 128, 128
+			im_resized = im.resize(size, Image.ANTIALIAS)
+			im_resized.save("image-128-128.png", "PNG")
+			image = cv2.imread("image-128-128.png", cv2.IMREAD_UNCHANGED)
+
 		# Convert the image in
 		# BGR(RGB color space) to
 		# HSV(hue-saturation-value)
@@ -144,7 +161,7 @@ class robotController(Controller):
 									  (best_x + 2, best_y + 2),
 									  (0, 0, 255), 2)
 
-		cv2.imwrite("test_pictures.png", image)
+		cv2.imwrite("image-128-128.png", image)
 
 		self.top_left = 0
 		self.top_center = 0

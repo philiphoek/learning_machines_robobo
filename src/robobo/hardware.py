@@ -86,7 +86,18 @@ class HardwareRobobo(Robobo):
         """
         Returns sensor readings: [backR, backC, backL, frontRR, frontR, frontC, frontL, frontLL]
         """
-        return self._irs_values
+        # return self._irs_values
+        return self.normalize(np.array(self._irs_values), 0, 1)
+
+    # explicit function to normalize array
+    def normalize(self, arr, t_min, t_max):
+        norm_arr = []
+        diff = t_max - t_min
+        diff_arr = 30000 # gotten by looking at the values of irs
+        for i in arr:
+            temp = (((i - min(arr)) * diff) / diff_arr) + t_min
+            norm_arr.append(temp)
+        return norm_arr
 
     def _irs_callback(self, ros_data):
         self._irs_values = [
