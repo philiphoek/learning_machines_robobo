@@ -55,9 +55,9 @@ TOURNSIZE = 4
 ###########
 # DO NOT CHANGE
 ###########
-NGEN = 3
-npop = 5
-RUNS = 1
+NGEN = 10
+npop = 25
+RUNS = 4
 
 controller = robotController(robobo.SimulationTwoRobobos().connect(address='127.0.0.1', port=19997))
 
@@ -115,7 +115,7 @@ def simulation(controller, robot):
     print(f"Reward for seeing object: {reward_for_seeing_object}")
     print(f"Object hit: {object_hit}")
     print(f"Near object penalty: {times_near_object}")
-    fitness = 30 * controller.rob.collected_food() + reward_for_seeing_object - 100 * object_hit - times_near_object
+    fitness = 30 * controller.rob.collected_food() + reward_for_seeing_object - 200 * object_hit - times_near_object
     print(f"fitness: {fitness}")
 
     controller.rob.stop_world()
