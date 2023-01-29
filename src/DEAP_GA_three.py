@@ -3,12 +3,11 @@ from __future__ import print_function
 import time
 import numpy as np
 
-import robobo
+import robobo_task_three
 import cv2
 import sys
 import signal
-import prey
-from robot_controller_task_two import robotController
+from controller_task_three import robotController
 
 from math import fabs, sqrt
 import os
@@ -23,7 +22,7 @@ def terminate_program(signal_number, frame):
     print("Ctrl-C received, terminating program")
     sys.exit(1)
 
-experiment_name = input("Enter name of experiment: ")
+experiment_name = "Results task 3/" + input("Enter name of experiment: ")
 while (os.path.exists(experiment_name)):
     experiment_name = input("That name was already chosen, pick another: ")
 if not os.path.exists(experiment_name):
@@ -59,11 +58,11 @@ TOURNSIZE = 8
 ###########
 # DO NOT CHANGE
 ###########
-NGEN = 10
-npop = 50
+NGEN = 1
+npop = 1
 RUNS = 1
 
-controller = robotController(robobo.SimulationRobobo().connect(address='127.0.0.1', port=19997))
+controller = robotController(robobo_task_three.SimulationRobobo().connect(address='127.0.0.1', port=19997))
 
 # number of weights for multilayer with 10 hidden neurons
 n_vars = (controller.number_of_sensors + 1) * controller.n_hidden_neurons + (controller.n_hidden_neurons + 1) * controller.number_of_actions
@@ -75,9 +74,9 @@ def simulation(controller, robot):
     print('Simulation started')
     controller.rob.play_simulation()
 
-    controller.rob.set_phone_tilt(19.6, 1)
+    controller.rob.set_phone_tilt(19.8, 1)
 
-    allowed_steps = 1
+    allowed_steps = 2
     steps_taken = 0
     times_near_object = 0
     object_hit = 0
