@@ -22,6 +22,7 @@ def terminate_program(signal_number, frame):
     print("Ctrl-C received, terminating program")
     sys.exit(1)
 
+
 experiment_name = "Results task 3/" + input("Enter name of experiment: ")
 while (os.path.exists(experiment_name)):
     experiment_name = input("That name was already chosen, pick another: ")
@@ -31,7 +32,6 @@ if not os.path.exists(experiment_name):
 signal.signal(signal.SIGINT, terminate_program)
 
 # rob = robobo.HardwareRobobo(camera=True).connect(address="192.168.178.66")
-
 
 
 ########
@@ -65,9 +65,11 @@ RUNS = 1
 controller = robotController(robobo_task_three.SimulationRobobo().connect(address='127.0.0.1', port=19997))
 
 # number of weights for multilayer with 10 hidden neurons
-n_vars = (controller.number_of_sensors + 1) * controller.n_hidden_neurons + (controller.n_hidden_neurons + 1) * controller.number_of_actions
+n_vars = (controller.number_of_sensors + 1) * controller.n_hidden_neurons + (
+        controller.n_hidden_neurons + 1) * controller.number_of_actions
 
 pop = np.random.uniform(weight_lower, weight_upper, (npop, n_vars))
+
 
 def simulation(controller, robot):
     print()
@@ -82,8 +84,9 @@ def simulation(controller, robot):
     print(initial_distance_food_to_base)
     steps_taken = 0
     times_food_in_gripper = 0
+    reward_food_in_gripper_and_seeing_base = 0
     object_hit = 0
-    reward_for_seeing_object = 0
+    reward_having_food_in_center_of_image = 0
 
     for i in range(allowed_steps):
         controller.makeStep(robot)
@@ -95,34 +98,40 @@ def simulation(controller, robot):
         if controller.check_if_food_is_in_gripper():
             times_food_in_gripper += 1
 
-
-
         if controller.rob.check_for_collision():
             object_hit = 1
             # stop the simulation ones an non food object is hit
             print('Object is hit')
             break
 
-        if controller.top_left == 1 or controller.top_right == 1:
-            reward_for_seeing_object += 0.5
+        if (controller.green_left == 1 or controller.green_right) and controller.check_if_food_is_in_gripper():
+            reward_food_in_gripper_and_seeing_base += 0.5
 
-        if controller.bottom_left == 1 or controller.bottom_right == 1 or controller.top_center == 1:
-            reward_for_seeing_object += 1
+        if controller.green_center == 1 and controller.check_if_food_is_in_gripper():
+            reward_food_in_gripper_and_seeing_base += 1
 
-        if controller.bottom_center == 1:
-            reward_for_seeing_object += 1.5
+        if controller.red_center == 1:
+            reward_having_food_in_center_of_image += 1
 
         steps_taken += 1
 
     final_distance_food_to_base = controller.getDistance()
-    relative_distance_food_to_base = final_distance_food_to_base / initial_distance_food_to_base # closer to zero means food is close to the base
+    relative_distance_food_to_base = final_distance_food_to_base / initial_distance_food_to_base  # closer to zero means food is close to the base
     print(relative_distance_food_to_base)
 
-    print(f"Food collected: {controller.rob.collected_food()}")
-    print(f"Reward for seeing object: {reward_for_seeing_object}")
-    print(f"Object hit: {object_hit}")
+    print(f"Food deliverd: {food_delivered}")
+    print(f"Relative distance travelled food to base: {relative_distance_food_to_base}")
     print(f"Times food in gripper: {times_food_in_gripper}")
-    fitness = (100 * food_delivered) + (100 * (1 - final_distance_food_to_base)) + (times_food_in_gripper * 1) - 100 * object_hit
+    print(f"Reward for having food in center of image: {reward_having_food_in_center_of_image}")
+    print(f"Reward seeing base while having food in gripper: {reward_food_in_gripper_and_seeing_base}")
+    print(f"Object hit: {object_hit}")
+    fitness = 0
+    fitness += 100 * food_delivered
+    fitness += 100 * (1 - relative_distance_food_to_base)
+    fitness += (times_food_in_gripper * 1)
+    fitness += reward_having_food_in_center_of_image
+    fitness += reward_food_in_gripper_and_seeing_base
+    fitness -= 100 * object_hit
     print(f"fitness: {fitness}")
 
     controller.rob.stop_world()
@@ -134,6 +143,7 @@ def simulation(controller, robot):
 # evaluate the fitness of an individual
 def evaluate(robot):
     return (simulation(controller, robot),)
+
 
 def getStatistics(run, generation, pop, fits):
     length = len(pop)
@@ -156,7 +166,8 @@ def getStatistics(run, generation, pop, fits):
     # saves results for first pop
     file_aux = open(experiment_name + '/results.txt', 'a')
     file_aux.write(
-        '\n' + str(run) + ' ' + str(generation) + ' ' + str(round(best_fitness, 6)) + ' ' + str(round(mean, 6)) + ' ' + str(round(std, 6)))
+        '\n' + str(run) + ' ' + str(generation) + ' ' + str(round(best_fitness, 6)) + ' ' + str(
+            round(mean, 6)) + ' ' + str(round(std, 6)))
     file_aux.close()
 
 
@@ -172,6 +183,7 @@ toolbox.register("evaluate", evaluate)
 toolbox.register("mate", tools.cxTwoPoint)
 toolbox.register("mutate", tools.mutGaussian, mu=MU, sigma=SIGMA, indpb=INDPB)
 toolbox.register("select", tools.selTournament, tournsize=TOURNSIZE)
+
 
 def evolution(run):
     pop = toolbox.population(n=npop)
@@ -242,12 +254,14 @@ def evolution(run):
 
     print("-- End of (successful) evolution --")
 
+
 def main():
     file_aux = open(experiment_name + '/results.txt', 'a')
     file_aux.write('run gen best mean std')
     file_aux.close()
     for run in range(1, RUNS + 1):
         evolution(run)
+
 
 if __name__ == "__main__":
     main()

@@ -16,9 +16,9 @@ def tanh_activation(x):
 class robotController(Controller):
 	def __init__(self, rob):
 		# Number of hidden neurons
-		self.n_hidden_neurons = 10
+		self.n_hidden_neurons = 11
 		self.n_hidden = [self.n_hidden_neurons]
-		self.number_of_sensors = 10
+		self.number_of_sensors = 13
 		self.number_of_actions = 2
 		self.rob = rob
 
@@ -31,18 +31,18 @@ class robotController(Controller):
 		self.front_R = 0
 		self.front_RR = 0
 
-		self.top_left = 0
-		self.top_center = 0
-		self.top_right = 0
-		self.bottom_left = 0
-		self.bottom_center = 0
-		self.bottom_right = 0
+		self.green_left = 0
+		self.green_center = 0
+		self.green_right = 0
+		self.red_left = 0
+		self.red_center = 0
+		self.red_right = 0
 
 		self.food_in_gripper = 0
 
 	def makeStep(self, controller: np.array):
 		left, right = self.control(controller)
-		self.rob.move(20, 20, 1000)
+		self.rob.move(0, 0, 1000)
 
 	def control(self, controller: np.array):
 		inputs = self.getInputValues()
@@ -79,6 +79,7 @@ class robotController(Controller):
 		values = np.array([
 			*self.get_irs_values(),
 			*self.detect_green(self.rob.get_image_front()),
+			*self.detect_red(self.rob.get_image_front()),
 			*self.check_if_food_is_in_gripper()
 		], float)
 
@@ -123,14 +124,14 @@ class robotController(Controller):
 	# https://www.geeksforgeeks.org/multiple-color-detection-in-real-time-using-python-opencv/?ref=rp
 	def detect_green(self, image):
 
-		cv2.imwrite("test_pictures.png", image)
+		cv2.imwrite("test_pictures_green.png", image)
 		# resize if image is not the correct resolution
 		if image.shape[0] != 128 or image.shape[1] != 128:
-			im = Image.open("test_pictures.png")
+			im = Image.open("test_pictures_green.png")
 			size = 128, 128
 			im_resized = im.resize(size, Image.ANTIALIAS)
-			im_resized.save("image-128-128.png", "PNG")
-			image = cv2.imread("image-128-128.png", cv2.IMREAD_UNCHANGED)
+			im_resized.save("image-128-128-green.png", "PNG")
+			image = cv2.imread("image-128-128-green.png", cv2.IMREAD_UNCHANGED)
 
 		# Convert the image in
 		# BGR(RGB color space) to
@@ -156,57 +157,121 @@ class robotController(Controller):
 		# Creating contour to track green color
 		contours, hierarchy = cv2.findContours(green_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-		best_area = 0
-		best_x = 0
-		best_y = 0
+		green_best_area = 0
+		green_best_x = 0
+		green_best_y = 0
 		for pic, contour in enumerate(contours):
 			area = cv2.contourArea(contour)
-			if area > best_area and area > 200:
-				best_area = area
+			if area > green_best_area and area > 50:
+				green_best_area = area
 
 				x, y, w, h = cv2.boundingRect(contour)
-				best_x = int(x + (w / 2))
-				best_y = int(y + h)
+				green_best_x = int(x + (w / 2))
+				green_best_y = int(y + h)
 
 				image = cv2.rectangle(image, (x, y),
 									  (x + w, y + h),
 									  (0, 255, 0), 2)
 
-				image = cv2.rectangle(image, (best_x, best_y),
-									  (best_x + 2, best_y + 2),
+				image = cv2.rectangle(image, (green_best_x, green_best_y),
+									  (green_best_x + 2, green_best_y + 2),
 									  (0, 0, 255), 2)
 
-		cv2.imwrite("image-128-128.png", image)
+		cv2.imwrite("image-128-128-green.png", image)
 
-		self.top_left = 0
-		self.top_center = 0
-		self.top_right = 0
-		self.bottom_left = 0
-		self.bottom_center = 0
-		self.bottom_right = 0
-		if best_x < 42 and best_y <= 64:
+		self.green_left = 0
+		self.green_center = 0
+		self.green_right = 0
+		if green_best_x < 42:
 			# print('object is in top left')
-			self.top_left = 1
-		if 42 < best_x < 84 and best_y <= 64:
+			self.green_left = 1
+		if 42 < green_best_x < 84:
 			# print('object is in top center')
-			self.top_center = 1
-		if best_x > 84 and best_y <= 64:
+			self.green_center = 1
+		if green_best_x > 84:
 			# print('object is in top right')
-			self.top_right = 1
-		if best_x < 42 and best_y > 64:
-			# print('object is in bottom left')
-			self.bottom_left = 1
-		if 42 < best_x < 84 and best_y > 64:
-			# print('object is in bottom center')
-			self.bottom_center = 1
-		if best_x > 84 and best_y > 64:
-			# print('object is in bottom right')
-			self.bottom_right = 1
+			self.green_right = 1
 
 		return [
-			max(self.top_left, self.bottom_left),
-			max(self.top_center, self.bottom_center),
-			max(self.top_right, self.bottom_right),
+			self.green_left,
+			self.green_center,
+			self.green_right,
+		]
+
+	# https://www.geeksforgeeks.org/multiple-color-detection-in-real-time-using-python-opencv/?ref=rp
+	def detect_red(self, image):
+
+		cv2.imwrite("test_pictures_red.png", image)
+		# resize if image is not the correct resolution
+		if image.shape[0] != 128 or image.shape[1] != 128:
+			im = Image.open("test_pictures_red.png")
+			size = 128, 128
+			im_resized = im.resize(size, Image.ANTIALIAS)
+			im_resized.save("image-128-128-red.png", "PNG")
+			image = cv2.imread("image-128-128-red.png", cv2.IMREAD_UNCHANGED)
+
+		# Convert the image in
+		# BGR(RGB color space) to
+		# HSV(hue-saturation-value)
+		# color space
+		hsvFrame = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+		# Set range for red color and
+		# define mask
+		red_lower = np.array([0, 70, 50], np.uint8)
+		red_upper = np.array([180, 255, 255], np.uint8)
+		red_mask = cv2.inRange(hsvFrame, red_lower, red_upper)
+
+		# Morphological Transform, Dilation
+		# for each color and bitwise_and operator
+		# between imageFrame and mask determines
+		# to detect only that particular color
+		kernal = np.ones((5, 5), "uint8")
+
+		# For red color
+		red_mask = cv2.dilate(red_mask, kernal)
+
+		# Creating contour to track green color
+		contours, red_hierarchy = cv2.findContours(red_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+		red_best_area = 0
+		red_best_x = 0
+		red_best_y = 0
+		for pic, contour in enumerate(contours):
+			area = cv2.contourArea(contour)
+			if area > red_best_area and area > 5:
+				red_best_area = area
+
+				x, y, w, h = cv2.boundingRect(contour)
+				red_best_x = int(x + (w / 2))
+				red_best_y = int(y)
+
+				image = cv2.rectangle(image, (x, y),
+									  (x + w, y + h),
+									  (0, 0, 255), 2)
+
+				image = cv2.rectangle(image, (red_best_x - 1, red_best_y - 1),
+									  (red_best_x + 1, red_best_y + 1),
+									  (0, 255, 0), 2)
+
+		cv2.imwrite("image-128-128-red.png", image)
+
+		self.red_left = 0
+		self.red_center = 0
+		self.red_right = 0
+		if red_best_x < 50:
+			# print('object is in top left')
+			self.red_left = 1
+		if 50 <= red_best_x <= 78:
+			# print('object is in top center')
+			self.red_center = 1
+		if red_best_x > 78:
+			# print('object is in top right')
+			self.red_right = 1
+
+		return [
+			self.red_left,
+			self.red_center,
+			self.red_right,
 		]
 
 	def detect_object(self):
