@@ -43,29 +43,27 @@ class SimulationRobobo(Robobo):
         )
 
     def initialize_handles(self):
-        self._RightMotor = self._vrep_get_object_handle('Right_Motor{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._LeftMotor = self._vrep_get_object_handle('Left_Motor{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._Robobo = self._vrep_get_object_handle('Robobo{}'.format(self._value_number), vrep.simx_opmode_blocking)
+        self._RightMotor = self._vrep_get_object_handle('Right_Motor', vrep.simx_opmode_blocking)
+        self._LeftMotor = self._vrep_get_object_handle('Left_Motor', vrep.simx_opmode_blocking)
+        self._Robobo = self._vrep_get_object_handle('Robobo', vrep.simx_opmode_blocking)
 
-        self._IrBackC = self._vrep_get_object_handle('Ir_Back_C{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._IrFrontC = self._vrep_get_object_handle('Ir_Front_C{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._IrFrontLL = self._vrep_get_object_handle('Ir_Front_LL{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._IrFrontRR = self._vrep_get_object_handle('Ir_Front_RR{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._IrBackL = self._vrep_get_object_handle('Ir_Back_L{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._IrBackLFloor = self._vrep_get_object_handle('Ir_Back_L_Floor{}'.format(self._value_number),
-                                                            vrep.simx_opmode_blocking)
-        self._IrBackR = self._vrep_get_object_handle('Ir_Back_R{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._IrBackRFloor = self._vrep_get_object_handle('Ir_Back_R_Floor{}'.format(self._value_number),
-                                                            vrep.simx_opmode_blocking)
-        self._IrFrontL = self._vrep_get_object_handle('Ir_Front_L{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._IrFrontLFloor = self._vrep_get_object_handle('Ir_Front_L_Floor{}'.format(self._value_number),
-                                                            vrep.simx_opmode_blocking)
-        self._IrFrontR = self._vrep_get_object_handle('Ir_Front_R{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._IrFrontRFloor = self._vrep_get_object_handle('Ir_Front_R_Floor{}'.format(self._value_number),
-                                                            vrep.simx_opmode_blocking)
-        self._TiltMotor = self._vrep_get_object_handle('Tilt_Motor{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._PanMotor = self._vrep_get_object_handle('Pan_Motor{}'.format(self._value_number), vrep.simx_opmode_blocking)
-        self._FrontalCamera = self._vrep_get_object_handle('Frontal_Camera{}'.format(self._value_number), vrep.simx_opmode_blocking)
+        self._IrBackC = self._vrep_get_object_handle('Ir_Back_C', vrep.simx_opmode_blocking)
+        self._IrFrontC = self._vrep_get_object_handle('Ir_Front_C', vrep.simx_opmode_blocking)
+        self._IrFrontLL = self._vrep_get_object_handle('Ir_Front_LL', vrep.simx_opmode_blocking)
+        self._IrFrontRR = self._vrep_get_object_handle('Ir_Front_RR', vrep.simx_opmode_blocking)
+        self._IrBackL = self._vrep_get_object_handle('Ir_Back_L', vrep.simx_opmode_blocking)
+        self._IrBackLFloor = self._vrep_get_object_handle('Ir_Back_L_Floor', vrep.simx_opmode_blocking)
+        self._IrBackR = self._vrep_get_object_handle('Ir_Back_R', vrep.simx_opmode_blocking)
+        self._IrBackRFloor = self._vrep_get_object_handle('Ir_Back_R_Floor', vrep.simx_opmode_blocking)
+        self._IrFrontL = self._vrep_get_object_handle('Ir_Front_L', vrep.simx_opmode_blocking)
+        self._IrFrontLFloor = self._vrep_get_object_handle('Ir_Front_L_Floor', vrep.simx_opmode_blocking)
+        self._IrFrontR = self._vrep_get_object_handle('Ir_Front_R', vrep.simx_opmode_blocking)
+        self._IrFrontRFloor = self._vrep_get_object_handle('Ir_Front_R_Floor', vrep.simx_opmode_blocking)
+        self._TiltMotor = self._vrep_get_object_handle('Tilt_Motor', vrep.simx_opmode_blocking)
+        self._PanMotor = self._vrep_get_object_handle('Pan_Motor', vrep.simx_opmode_blocking)
+        self._FrontalCamera = self._vrep_get_object_handle('Frontal_Camera', vrep.simx_opmode_blocking)
+
+        self._Food = self._vrep_get_object_handle('Food', vrep.simx_opmode_blocking)
 
         self._Coll = self._vrep_get_collision_handle('Collision', vrep.simx_opmode_blocking)
 
@@ -394,6 +392,11 @@ class SimulationRobobo(Robobo):
         detection, _detection_point, _detected_handle, _detected_normal \
             = self._vrep_read_proximity_sensor(self._base, vrep.simx_opmode_buffer)
         return bool(detection)
+
+    def food_position(self):
+        return vrep.unwrap_vrep(
+            vrep.simxGetObjectPosition(self._clientID, self._Food, -1, vrep.simx_opmode_blocking)
+        )
 
     def check_for_collision(self):
         boolean = self._vrep_read_collision(self._Coll, vrep.simx_opmode_buffer)

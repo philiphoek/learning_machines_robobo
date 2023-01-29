@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from controller import Controller
 from PIL import Image
@@ -14,9 +16,9 @@ def tanh_activation(x):
 class robotController(Controller):
 	def __init__(self, rob):
 		# Number of hidden neurons
-		self.n_hidden_neurons = 8
+		self.n_hidden_neurons = 10
 		self.n_hidden = [self.n_hidden_neurons]
-		self.number_of_sensors = 9
+		self.number_of_sensors = 10
 		self.number_of_actions = 2
 		self.rob = rob
 
@@ -35,6 +37,8 @@ class robotController(Controller):
 		self.bottom_left = 0
 		self.bottom_center = 0
 		self.bottom_right = 0
+
+		self.food_in_gripper = 0
 
 	def makeStep(self, controller: np.array):
 		left, right = self.control(controller)
@@ -75,20 +79,21 @@ class robotController(Controller):
 		values = np.array([
 			*self.get_irs_values(),
 			*self.detect_green(self.rob.get_image_front()),
+			*self.check_if_food_is_in_gripper()
 		], float)
 
 		return np.nan_to_num(values)
 
 	def get_irs_values(self):
 		irs_values = self.rob.read_irs()
-		self.back_R = irs_values[0] if irs_values[0] else 0
-		self.back_C = irs_values[1] if irs_values[1] else 0
-		self.back_L = irs_values[2] if irs_values[2] else 0
-		self.front_RR = irs_values[3] if irs_values[3] else 0
-		self.front_R = irs_values[4] if irs_values[4] else 0
-		self.front_C = irs_values[5] if irs_values[5] else 0
-		self.front_L = irs_values[6] if irs_values[6] else 0
-		self.front_LL = irs_values[7] if irs_values[7] else 0
+		self.back_R = irs_values[0]
+		self.back_C = irs_values[1]
+		self.back_L = irs_values[2]
+		self.front_RR = irs_values[3]
+		self.front_R = irs_values[4]
+		self.front_C = irs_values[5]
+		self.front_L = irs_values[6]
+		self.front_LL = irs_values[7]
 
 		# print(max(self.front_RR, self.front_R))
 		# print(max(self.front_LL, self.front_L))
@@ -106,6 +111,14 @@ class robotController(Controller):
 			self.back_L,
 			self.back_R
 		]
+
+	def check_if_food_is_in_gripper(self):
+		irs_values = self.rob.read_irs()
+		if irs_values[5] > 0.55:
+			self.food_in_gripper = 1
+		else:
+			self.food_in_gripper = 0
+		return [self.food_in_gripper]
 
 	# https://www.geeksforgeeks.org/multiple-color-detection-in-real-time-using-python-opencv/?ref=rp
 	def detect_green(self, image):
