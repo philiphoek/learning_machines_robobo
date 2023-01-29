@@ -42,7 +42,7 @@ class robotController(Controller):
 
 	def makeStep(self, controller: np.array):
 		left, right = self.control(controller)
-		self.rob.move(0, 0, 1000)
+		self.rob.move(20, 20, 1000)
 
 	def control(self, controller: np.array):
 		inputs = self.getInputValues()
@@ -218,3 +218,10 @@ class robotController(Controller):
 					return True
 
 		return False
+
+	def getDistance(self):
+		p1 = np.array(self.rob.food_position())
+		p2 = np.array(self.rob.base_position())
+
+		squared_dist = np.sum((p1 - p2) ** 2, axis=0)
+		return np.sqrt(squared_dist)

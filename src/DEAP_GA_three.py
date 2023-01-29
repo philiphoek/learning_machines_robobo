@@ -76,18 +76,30 @@ def simulation(controller, robot):
 
     controller.rob.set_phone_tilt(19.8, 1)
 
-    allowed_steps = 2
+    allowed_steps = 3
+    food_delivered = 0
+    initial_distance_food_to_base = controller.getDistance()
+    print(initial_distance_food_to_base)
     steps_taken = 0
-    times_near_object = 0
+    times_food_in_gripper = 0
     object_hit = 0
     reward_for_seeing_object = 0
 
     for i in range(allowed_steps):
         controller.makeStep(robot)
+        print(controller.rob.base_detects_food())
+
+        if controller.rob.base_detects_food():
+            food_delivered = 1
+
+        if controller.check_if_food_is_in_gripper():
+            times_food_in_gripper += 1
+
+
 
         if controller.rob.check_for_collision():
             object_hit = 1
-            # stop the simulation ones an object is hit
+            # stop the simulation ones an non food object is hit
             print('Object is hit')
             break
 
@@ -100,16 +112,17 @@ def simulation(controller, robot):
         if controller.bottom_center == 1:
             reward_for_seeing_object += 1.5
 
-        if controller.detect_object():
-            times_near_object += 0.5
-
         steps_taken += 1
+
+    final_distance_food_to_base = controller.getDistance()
+    relative_distance_food_to_base = final_distance_food_to_base / initial_distance_food_to_base # closer to zero means food is close to the base
+    print(relative_distance_food_to_base)
 
     print(f"Food collected: {controller.rob.collected_food()}")
     print(f"Reward for seeing object: {reward_for_seeing_object}")
     print(f"Object hit: {object_hit}")
-    print(f"Near object penalty: {times_near_object}")
-    fitness = 30 * controller.rob.collected_food() + reward_for_seeing_object - 100 * object_hit - times_near_object
+    print(f"Times food in gripper: {times_food_in_gripper}")
+    fitness = (100 * food_delivered) + (100 * (1 - final_distance_food_to_base)) + (times_food_in_gripper * 1) - 100 * object_hit
     print(f"fitness: {fitness}")
 
     controller.rob.stop_world()
