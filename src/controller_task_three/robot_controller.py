@@ -81,18 +81,20 @@ class robotController(Controller):
 
 	def get_irs_values(self):
 		irs_values = self.rob.read_irs()
-		self.front_C = irs_values[0]
-		self.back_C = irs_values[1]
-		self.front_LL = irs_values[2]
-		self.front_RR = irs_values[3]
-		self.back_L = irs_values[4]
-		self.back_R = irs_values[5]
-		self.front_R = irs_values[6]
-		self.front_L = irs_values[7]
+		self.back_R = irs_values[0] if irs_values[0] else 0
+		self.back_C = irs_values[1] if irs_values[1] else 0
+		self.back_L = irs_values[2] if irs_values[2] else 0
+		self.front_RR = irs_values[3] if irs_values[3] else 0
+		self.front_R = irs_values[4] if irs_values[4] else 0
+		self.front_C = irs_values[5] if irs_values[5] else 0
+		self.front_L = irs_values[6] if irs_values[6] else 0
+		self.front_LL = irs_values[7] if irs_values[7] else 0
 
 		# print(max(self.front_RR, self.front_R))
 		# print(max(self.front_LL, self.front_L))
+		# print('######')
 		# print(self.front_C)
+		# print('######')
 		# print(self.back_C)
 		# print(self.back_L)
 		# print(self.back_R)
