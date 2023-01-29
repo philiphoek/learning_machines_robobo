@@ -1,3 +1,4 @@
+Size of package was 0.05 x 0.05 x 0.02
 Started far away and slowly got closer
 ######
 0
@@ -122,4 +123,4 @@ when increasing the size a little bit we get the following behaviour
 ######
 0.024434882692421535
 ######
-
+Size is now 0.05 x 0.05 x 0.03
