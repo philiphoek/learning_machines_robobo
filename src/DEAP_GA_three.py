@@ -58,8 +58,8 @@ TOURNSIZE = 8
 ###########
 # DO NOT CHANGE
 ###########
-NGEN = 1
-npop = 1
+NGEN = 10
+npop = 50
 RUNS = 1
 
 controller = robotController(robobo_task_three.SimulationRobobo().connect(address='127.0.0.1', port=19997))
@@ -70,7 +70,6 @@ n_vars = (controller.number_of_sensors + 1) * controller.n_hidden_neurons + (
 
 pop = np.random.uniform(weight_lower, weight_upper, (npop, n_vars))
 
-
 def simulation(controller, robot):
     print()
     print('Simulation started')
@@ -78,10 +77,9 @@ def simulation(controller, robot):
 
     controller.rob.set_phone_tilt(19.8, 1)
 
-    allowed_steps = 3
+    allowed_steps = 100
     food_delivered = 0
     initial_distance_food_to_base = controller.getDistance()
-    print(initial_distance_food_to_base)
     steps_taken = 0
     times_food_in_gripper = 0
     reward_food_in_gripper_and_seeing_base = 0
@@ -90,13 +88,13 @@ def simulation(controller, robot):
 
     for i in range(allowed_steps):
         controller.makeStep(robot)
-        print(controller.rob.base_detects_food())
 
         if controller.rob.base_detects_food():
             food_delivered = 1
+            break
 
-        if controller.check_if_food_is_in_gripper():
-            times_food_in_gripper += 1
+        if controller.food_in_gripper == 1:
+            times_food_in_gripper += 0.25
 
         if controller.rob.check_for_collision():
             object_hit = 1
@@ -104,21 +102,19 @@ def simulation(controller, robot):
             print('Object is hit')
             break
 
-        if (controller.green_left == 1 or controller.green_right) and controller.check_if_food_is_in_gripper():
+        if (controller.green_left == 1 or controller.green_right) and controller.food_in_gripper:
+            reward_food_in_gripper_and_seeing_base += 0.25
+
+        if controller.green_center == 1 and controller.food_in_gripper == 1:
             reward_food_in_gripper_and_seeing_base += 0.5
 
-        if controller.green_center == 1 and controller.check_if_food_is_in_gripper():
-            reward_food_in_gripper_and_seeing_base += 1
-
         if controller.red_center == 1:
-            reward_having_food_in_center_of_image += 1
+            reward_having_food_in_center_of_image += 0.25
 
         steps_taken += 1
 
     final_distance_food_to_base = controller.getDistance()
     relative_distance_food_to_base = final_distance_food_to_base / initial_distance_food_to_base  # closer to zero means food is close to the base
-    print(relative_distance_food_to_base)
-
     print(f"Food deliverd: {food_delivered}")
     print(f"Relative distance travelled food to base: {relative_distance_food_to_base}")
     print(f"Times food in gripper: {times_food_in_gripper}")
@@ -126,12 +122,12 @@ def simulation(controller, robot):
     print(f"Reward seeing base while having food in gripper: {reward_food_in_gripper_and_seeing_base}")
     print(f"Object hit: {object_hit}")
     fitness = 0
-    fitness += 100 * food_delivered
-    fitness += 100 * (1 - relative_distance_food_to_base)
+    fitness += 200 * food_delivered
+    fitness += 50 * (1 - relative_distance_food_to_base)
     fitness += (times_food_in_gripper * 1)
     fitness += reward_having_food_in_center_of_image
     fitness += reward_food_in_gripper_and_seeing_base
-    fitness -= 100 * object_hit
+    fitness -= 200 * object_hit
     print(f"fitness: {fitness}")
 
     controller.rob.stop_world()

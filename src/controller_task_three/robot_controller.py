@@ -42,7 +42,7 @@ class robotController(Controller):
 
 	def makeStep(self, controller: np.array):
 		left, right = self.control(controller)
-		self.rob.move(0, 0, 1000)
+		self.rob.move(left, right, 500)
 
 	def control(self, controller: np.array):
 		inputs = self.getInputValues()
@@ -80,7 +80,7 @@ class robotController(Controller):
 			*self.get_irs_values(),
 			*self.detect_green(self.rob.get_image_front()),
 			*self.detect_red(self.rob.get_image_front()),
-			*self.check_if_food_is_in_gripper()
+			*self.check_if_food_is_in_gripper(),
 		], float)
 
 		return np.nan_to_num(values)
@@ -115,10 +115,10 @@ class robotController(Controller):
 
 	def check_if_food_is_in_gripper(self):
 		irs_values = self.rob.read_irs()
+		self.food_in_gripper = 0
 		if irs_values[5] > 0.55:
 			self.food_in_gripper = 1
-		else:
-			self.food_in_gripper = 0
+
 		return [self.food_in_gripper]
 
 	# https://www.geeksforgeeks.org/multiple-color-detection-in-real-time-using-python-opencv/?ref=rp
@@ -182,15 +182,17 @@ class robotController(Controller):
 		self.green_left = 0
 		self.green_center = 0
 		self.green_right = 0
-		if green_best_x < 42:
-			# print('object is in top left')
-			self.green_left = 1
-		if 42 < green_best_x < 84:
-			# print('object is in top center')
-			self.green_center = 1
-		if green_best_x > 84:
-			# print('object is in top right')
-			self.green_right = 1
+		# only detect green if there is food in the gripper
+		if self.check_if_food_is_in_gripper()[0] == 1:
+			if green_best_x < 42:
+				# print('object is in top left')
+				self.green_left = 1
+			if 42 < green_best_x < 84:
+				# print('object is in top center')
+				self.green_center = 1
+			if green_best_x > 84:
+				# print('object is in top right')
+				self.green_right = 1
 
 		return [
 			self.green_left,
