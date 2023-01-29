@@ -4,6 +4,7 @@ import time
 import vrep
 import cv2
 import numpy as np
+import math
 
 class VREPCommunicationError(Exception):
     pass
@@ -268,7 +269,20 @@ class SimulationRobobo(Robobo):
         # new_min = 18000
         # new_max = 0
         # return [(((old_value - old_min) * (new_max - new_min)) / (old_max - old_min)) + new_min for old_value in vect]
-        return vect
+        return self.normalize(vect)
+
+    def normalize(self, vect):
+        max_value = 0.5 # max value of IRS as can be seen in simulation
+        return [
+            (-math.log(vect[0]) / 10) / max_value if vect[0] else 0,
+            (-math.log(vect[1]) / 10) / max_value if vect[1] else 0,
+            (-math.log(vect[2]) / 10) / max_value if vect[2] else 0,
+            (-math.log(vect[3]) / 10) / max_value if vect[3] else 0,
+            (-math.log(vect[4]) / 10) / max_value if vect[4] else 0,
+            (-math.log(vect[5]) / 10) / max_value if vect[5] else 0,
+            (-math.log(vect[6]) / 10) / max_value if vect[6] else 0,
+            (-math.log(vect[7]) / 10) / max_value if vect[7] else 0
+        ]
 
     def get_image_front(self):
         return self._get_image(self._FrontalCamera)
