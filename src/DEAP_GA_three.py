@@ -60,7 +60,7 @@ TOURNSIZE = 8
 ###########
 NGEN = 10
 npop = 50
-RUNS = 1
+RUNS = 4
 
 controller = robotController(robobo_task_three.SimulationRobobo().connect(address='127.0.0.1', port=19997))
 
