@@ -141,8 +141,8 @@ class robotController(Controller):
 
 		# Set range for green color and
 		# define mask
-		green_lower = np.array([25, 52, 72], np.uint8)
-		green_upper = np.array([102, 255, 255], np.uint8)
+		green_lower = np.array([36, 50, 70], np.uint8)
+		green_upper = np.array([89, 255, 255], np.uint8)
 		green_mask = cv2.inRange(hsvFrame, green_lower, green_upper)
 
 		# Morphological Transform, Dilation
@@ -220,8 +220,8 @@ class robotController(Controller):
 
 		# Set range for red color and
 		# define mask
-		red_lower = np.array([0, 70, 50], np.uint8)
-		red_upper = np.array([180, 255, 255], np.uint8)
+		red_lower = np.array([0, 50, 70], np.uint8)
+		red_upper = np.array([9, 255, 255], np.uint8)
 		red_mask = cv2.inRange(hsvFrame, red_lower, red_upper)
 
 		# Morphological Transform, Dilation
