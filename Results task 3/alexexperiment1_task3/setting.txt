@@ -1,0 +1,68 @@
+# DO NOT CHANGE
+###########
+weight_upper = 1
+weight_lower = -1
+# cross two individuals with probability CXPB
+CXPB = 0.8
+# mutate an individual with probability MUTPB
+MUTPB = 0.2
+# mu: Mean or :term:`python:sequence` of means for the gaussian addition mutation.
+MU = 0
+# sigma: Standard deviation or :term:`python:sequence` of standard deviations for the gaussian addition mutation.
+SIGMA = 0.15
+# indpb: Independent probability for each attribute to be mutated.
+INDPB = 0.1
+# tournsize: The number of individuals participating in each tournament.
+TOURNSIZE = 8
+###########
+# DO NOT CHANGE
+###########
+NGEN = 10
+npop = 50
+RUNS = 4
+
+
+controller = robotController(robobo_task_three.SimulationRobobo().connect(address='127.0.0.1', port=19997))
+
+# number of weights for multilayer with 10 hidden neurons
+n_vars = (controller.number_of_sensors + 1) * controller.n_hidden_neurons + (
+        controller.n_hidden_neurons + 1) * controller.number_of_actions
+
+pop = np.random.uniform(weight_lower, weight_upper, (npop, n_vars))
+
+
+for i in range(allowed_steps):
+        controller.makeStep(robot)
+
+        if controller.rob.base_detects_food():
+            food_delivered = 1
+            break
+
+        if controller.food_in_gripper == 1:
+            times_food_in_gripper += 0.25
+
+        if controller.rob.check_for_collision():
+            object_hit = 1
+            # stop the simulation ones an non food object is hit
+            print('Object is hit')
+            break
+
+        if (controller.green_left == 1 or controller.green_right) and controller.food_in_gripper:
+            reward_food_in_gripper_and_seeing_base += 0.25
+
+        if controller.green_center == 1 and controller.food_in_gripper == 1:
+            reward_food_in_gripper_and_seeing_base += 0.5
+
+        if controller.red_center == 1:
+            reward_having_food_in_center_of_image += 0.25
+
+        steps_taken += 1
+
+fitness = 0
+fitness += 200 * food_delivered
+fitness += 50 * (1 - relative_distance_food_to_base)
+fitness += (times_food_in_gripper * 1)
+fitness += reward_having_food_in_center_of_image
+fitness += reward_food_in_gripper_and_seeing_base
+fitness -= 200 * object_hit
+print(f"fitness: {fitness}")
