@@ -79,7 +79,7 @@ def simulation(controller, robot):
     controller.rob.randomize_position()
 
     allowed_steps = 100
-    threshold_not_having_food = 30
+    threshold_not_having_food = 100 # for now, lets do no threshold since we still have to check if it can learn with random food placement
     food_delivered = 0
     initial_distance_food_to_base = controller.getDistance()
     steps_taken = 0
