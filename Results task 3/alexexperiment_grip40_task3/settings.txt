@@ -1,0 +1,50 @@
+# DO NOT CHANGE
+###########
+weight_upper = 1
+weight_lower = -1
+# cross two individuals with probability CXPB
+CXPB = 0.8
+# mutate an individual with probability MUTPB
+MUTPB = 0.2
+# mu: Mean or :term:`python:sequence` of means for the gaussian addition mutation.
+MU = 0
+# sigma: Standard deviation or :term:`python:sequence` of standard deviations for the gaussian addition mutation.
+SIGMA = 0.15
+# indpb: Independent probability for each attribute to be mutated.
+INDPB = 0.1
+# tournsize: The number of individuals participating in each tournament.
+TOURNSIZE = 8
+###########
+# DO NOT CHANGE
+###########
+NGEN = 10
+npop = 50
+RUNS = 4
+
+
+    for i in range(allowed_steps):
+        controller.makeStep(robot)
+
+        if controller.rob.base_detects_food():
+            food_delivered = 1
+            break
+
+        if controller.food_in_gripper == 1:
+            time_steps_food_in_gripper += 1
+
+        if controller.rob.check_for_collision():
+            object_hit = 1
+            # stop the simulation ones an non food object is hit
+            print('Object is hit')
+            break
+
+        if steps_taken > 40 and time_steps_food_in_gripper == 0:
+            print('Robot has not managed to get food in gripper for 40 time steps')
+            break
+
+        steps_taken += 1
+
+
+    fitness += 200 * (1 - relative_distance_food_to_base) * (1 - (steps_taken/allowed_steps))
+    # make fitness zero when object is hit
+    fitness = fitness * (1 - object_hit)
