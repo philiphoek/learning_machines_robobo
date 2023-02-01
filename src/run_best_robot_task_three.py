@@ -25,6 +25,7 @@ def main():
 
     controller.rob.play_simulation()
     controller.rob.set_phone_tilt(19.8, 1)
+    controller.rob.randomize_position()
 
     allowed_steps = 100
     threshold_not_having_food = 30

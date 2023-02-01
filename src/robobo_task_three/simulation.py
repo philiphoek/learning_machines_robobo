@@ -5,6 +5,7 @@ import vrep
 import cv2
 import numpy as np
 import math
+import random
 
 class VREPCommunicationError(Exception):
     pass
@@ -374,6 +375,16 @@ class SimulationRobobo(Robobo):
     def position(self):
         return vrep.unwrap_vrep(
             vrep.simxGetObjectPosition(self._clientID, self._Robobo, -1, vrep.simx_opmode_blocking)
+        )
+
+    def randomize_position(self):
+        position = vrep.unwrap_vrep(
+            vrep.simxGetObjectPosition(self._clientID, self._Food, -1, vrep.simx_opmode_blocking)
+        )
+        position[0] += random.uniform(-0.5, 0.5)
+        position[1] += random.uniform(-0.5, 0.5)
+        return vrep.unwrap_vrep(
+            vrep.simxSetObjectPosition(self._clientID, self._Food, -1, position, vrep.simx_opmode_blocking)
         )
 
     def collected_food(self):
