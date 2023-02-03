@@ -93,10 +93,10 @@ class HardwareRobobo(Robobo):
     def normalize(self, arr, t_min, t_max):
         norm_arr = []
         diff = t_max - t_min
-        diff_arr = 30000 # gotten by looking at the values of irs
+        diff_arr = 150 # gotten by looking at the values of irs
         for i in arr:
             temp = (((i - min(arr)) * diff) / diff_arr) + t_min
-            norm_arr.append(temp)
+            norm_arr.append(min(temp, 1))
         return norm_arr
 
     def _irs_callback(self, ros_data):

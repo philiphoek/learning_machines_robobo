@@ -42,10 +42,12 @@ class robotController(Controller):
 
 	def makeStep(self, controller: np.array):
 		left, right = self.control(controller)
+
 		self.rob.move(left, right, 500)
 
 	def control(self, controller: np.array):
 		inputs = self.getInputValues()
+		print(inputs)
 		if self.n_hidden[0]>0:
 			# Preparing the weights and biases from the controller of layer 1
 
@@ -184,7 +186,7 @@ class robotController(Controller):
 		self.green_right = 0
 		# only detect green if there is food in the gripper
 		if self.check_if_food_is_in_gripper()[0] == 1:
-			if green_best_x < 42:
+			if 0 < green_best_x < 42:
 				# print('object is in top left')
 				self.green_left = 1
 			if 42 < green_best_x < 84:
@@ -193,6 +195,11 @@ class robotController(Controller):
 			if green_best_x > 84:
 				# print('object is in top right')
 				self.green_right = 1
+
+			# print(self.green_left)
+			# print(self.green_center)
+			# print(self.green_right)
+			# print()
 
 		return [
 			self.green_left,
@@ -260,7 +267,7 @@ class robotController(Controller):
 		self.red_left = 0
 		self.red_center = 0
 		self.red_right = 0
-		if red_best_x < 50:
+		if 0 < red_best_x < 50:
 			# print('object is in top left')
 			self.red_left = 1
 		if 50 <= red_best_x <= 78:
